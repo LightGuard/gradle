@@ -22,7 +22,6 @@ import org.gradle.api.Project;
 import org.gradle.api.plugins.Convention;
 import org.gradle.api.plugins.WarPlugin;
 import org.gradle.api.plugins.glassfish.internal.BaseGlassfishTask;
-import org.gradle.api.plugins.osgi.OsgiPlugin;
 
 /**
  * Embedded Glassfish v3 plugin.  Allows for ejb, war, webservice, and jruby
@@ -43,7 +42,7 @@ public class GlassfishPlugin implements Plugin<Project> {
      */
     public void apply(Project project) {
         project.getPlugins().apply(WarPlugin.class); // Assuming, at least for now we're doing war
-        project.getPlugins().apply(OsgiPlugin.class); // We should also be able to handle OSGi as well
+        //project.getPlugins().apply(OsgiPlugin.class); // We should also be able to handle OSGi as well
 
         GlassfishPluginConvention gfConvention = new GlassfishPluginConvention();
         Convention convention = project.getConvention();
