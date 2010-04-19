@@ -16,7 +16,33 @@
 
 package org.gradle.api.plugins.glassfish;
 
+import org.glassfish.api.deployment.DeployCommandParameters;
+import org.glassfish.api.embedded.LifecycleException;
+import org.gradle.api.plugins.WarPluginConvention;
 import org.gradle.api.plugins.glassfish.internal.BaseGlassfishTask;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.bundling.War;
+
+import java.io.IOException;
 
 public class GlassfishRunWarTask extends BaseGlassfishTask {
+    @TaskAction
+    public void start() throws IOException, LifecycleException {
+        this.configureServer();
+
+        DeployCommandParameters params = new DeployCommandParameters();
+
+        this.deployer.deploy(((War) this.getProject().getTasks().findByName("war")).getArchivePath(), params);
+
+        try {
+            this.server.start();
+        } finally {
+            if (this.server != null)
+                this.server.stop();
+        }
+    }
+
+    private WarPluginConvention getWarConvention() {
+        return this.getProject().getConvention().getPlugin(WarPluginConvention.class);
+    }
 }

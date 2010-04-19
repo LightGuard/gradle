@@ -83,8 +83,8 @@ public class GlassfishPlugin implements Plugin<Project> {
     }
 
     private void configureGlassfishRunWar(final Project project) {
-        project.getTasks().withType(GlassfishRunTask.class).whenTaskAdded(new Action<GlassfishRunTask>() {
-            public void execute(GlassfishRunTask task) {
+        project.getTasks().withType(GlassfishRunWarTask.class).whenTaskAdded(new Action<GlassfishRunWarTask>() {
+            public void execute(GlassfishRunWarTask task) {
                 task.dependsOn(WarPlugin.WAR_TASK_NAME);
             }
         });
