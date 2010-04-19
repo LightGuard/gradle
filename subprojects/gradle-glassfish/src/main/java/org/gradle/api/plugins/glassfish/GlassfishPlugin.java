@@ -19,6 +19,8 @@ package org.gradle.api.plugins.glassfish;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.Convention;
 import org.gradle.api.plugins.WarPlugin;
 import org.gradle.api.plugins.glassfish.internal.BaseGlassfishTask;
@@ -35,15 +37,18 @@ public class GlassfishPlugin implements Plugin<Project> {
     public static final String GLASSFISH_OSGI = "glassfishOsgi";
     public static final String GLASSFISH_STOP = "glassfishStop";
 
+    private final Logger log = Logging.getLogger(GlassfishPlugin.class);
+
     /**
      * Apply this plugin to the given project object.
      *
      * @param project The project object
      */
     public void apply(Project project) {
+        this.log.debug("Applying Glassfish Plugin");
         project.getPlugins().apply(WarPlugin.class); // Assuming, at least for now we're doing war
-        //project.getPlugins().apply(OsgiPlugin.class); // We should also be able to handle OSGi as well
 
+        this.log.trace("Adding glassfish convention");
         GlassfishPluginConvention gfConvention = new GlassfishPluginConvention();
         Convention convention = project.getConvention();
         convention.getPlugins().put("glassfish", gfConvention);
@@ -53,12 +58,17 @@ public class GlassfishPlugin implements Plugin<Project> {
         this.configureGlassfishRunWar(project);
         this.configureGlassfishOsgi(project);
         this.configureGlassfishStop(project);
+
+        project.getTasks().add("baseGlassfishTask", BaseGlassfishTask.class);
+        project.getTasks().add("glassfishRun", GlassfishRunTask.class);
+        project.getTasks().add("glassfishRunWar", GlassfishRunWarTask.class);
+        project.getTasks().add("glassfishStop", GlassfishStopTask.class);
     }
 
     private void configureBaseTask(final Project project, final GlassfishPluginConvention convention) {
         project.getTasks().withType(BaseGlassfishTask.class).whenTaskAdded(new Action<BaseGlassfishTask>() {
             public void execute(BaseGlassfishTask task) {
-                task.setConvention(convention);
+                task.setGlassFishConvention(convention);
             }
         });
     }
@@ -66,6 +76,7 @@ public class GlassfishPlugin implements Plugin<Project> {
     private void configureGlassfishRun(final Project project) {
         project.getTasks().withType(GlassfishRunTask.class).whenTaskAdded(new Action<GlassfishRunTask>() {
             public void execute(GlassfishRunTask task) {
+                GlassfishPlugin.this.log.trace("GlassfishRun has been added");
                 task.dependsOn(WarPlugin.WAR_TASK_NAME);
             }
         });

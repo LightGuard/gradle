@@ -15,7 +15,7 @@
  */
 package org.gradle.api.plugins.glassfish;
 
-import org.gradle.api.internal.plugins.AbstractConvention;
+import groovy.lang.Closure;
 
 import java.io.File;
 
@@ -24,12 +24,17 @@ import java.io.File;
  *
  * @author Jason Porter <a href="mailto:lightguard.jp@gmail.com">lightguard.jp@gmail.com</a>
  */
-public class GlassfishPluginConvention extends AbstractConvention {
+public class GlassfishPluginConvention {
     private int port = 8080;
     private String name = "gradle-glassfish";
     private File configurationFile;
     private File installRoot;
     private String containerType = "all";
+
+    public void glassfish(Closure c) {
+        c.setDelegate(this);
+        c.call();
+    }
 
     public int getPort() {
         return port;
@@ -68,9 +73,9 @@ public class GlassfishPluginConvention extends AbstractConvention {
     }
 
     public void setContainerType(String containerType) {
-        if (!("all".equals(containerType) && "web".equals(containerType)
-                && "ejb".equals(containerType) && "jpa".equals(containerType)
-                && "webservices".equals(containerType) && "jruby".equals(containerType)))
+        if (!("all".equals(containerType) || "web".equals(containerType)
+                || "ejb".equals(containerType) || "jpa".equals(containerType)
+                || "webservices".equals(containerType) || "jruby".equals(containerType)))
             throw new IllegalArgumentException("Container type must be one of 'web', 'ejb', 'jpa', 'webservices', or 'jruby'");
         this.containerType = containerType;
     }

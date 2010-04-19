@@ -20,24 +20,26 @@ import org.glassfish.api.embedded.ContainerBuilder;
 import org.glassfish.api.embedded.EmbeddedDeployer;
 import org.glassfish.api.embedded.EmbeddedFileSystem;
 import org.glassfish.api.embedded.Server;
-import org.gradle.api.internal.ConventionTask;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.plugins.glassfish.GlassfishPluginConvention;
 
 import java.io.File;
 import java.io.IOException;
 
-public class BaseGlassfishTask extends ConventionTask {
+public class BaseGlassfishTask extends DefaultTask {
     protected Server server;
     protected EmbeddedDeployer deployer;
+    protected GlassfishPluginConvention glassFishConvention;
 
     protected void configureServer() throws IOException {
-        Server.Builder builder = new Server.Builder(this.<String>getConventionProperty("name"));
+        Server.Builder builder = new Server.Builder(this.glassFishConvention.getName());
 
         // Server location settings
         EmbeddedFileSystem.Builder efsBuilder = new EmbeddedFileSystem.Builder();
         efsBuilder.autoDelete(true);
 
-        File domainXml = this.<File>getConventionProperty("configurationFile");
-        File installRoot = this.<File>getConventionProperty("installRoot");
+        File domainXml = this.glassFishConvention.getConfigurationFile();
+        File installRoot = this.glassFishConvention.getInstallRoot();
 
         if (domainXml != null && domainXml.isFile())
             efsBuilder.configurationFile(domainXml); // domain.xml to use
@@ -48,19 +50,17 @@ public class BaseGlassfishTask extends ConventionTask {
         builder.embeddedFileSystem(efsBuilder.build());
 
         this.server = builder.build();
-        this.server.addContainer(ContainerBuilder.Type.valueOf(this.<String>getConventionProperty("containerType")));
-        this.server.createPort(this.<Integer>getConventionProperty("port"));
+        this.server.addContainer(ContainerBuilder.Type.valueOf(this.glassFishConvention.getContainerType()));
+        this.server.createPort(this.glassFishConvention.getPort());
 
         this.deployer = this.server.getDeployer();
     }
 
-    /**
-     * Shortcut method.
-     *
-     * @param name name of the property to retrieve
-     * @return property, if available
-     */
-    protected <T> T getConventionProperty(String name) {
-        return (T) this.getConvention().getProperty(name);
+    public GlassfishPluginConvention getGlassFishConvention() {
+        return this.glassFishConvention;
+    }
+
+    public void setGlassFishConvention(GlassfishPluginConvention convention) {
+        this.glassFishConvention = convention;
     }
 }

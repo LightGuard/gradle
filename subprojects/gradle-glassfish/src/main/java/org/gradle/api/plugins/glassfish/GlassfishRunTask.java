@@ -23,6 +23,7 @@ import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.WarPluginConvention;
 import org.gradle.api.plugins.glassfish.internal.BaseGlassfishTask;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 public class GlassfishRunTask extends BaseGlassfishTask {
+    @TaskAction
     public void start() throws IOException, LifecycleException {
         this.configureServer();
 
@@ -44,12 +46,23 @@ public class GlassfishRunTask extends BaseGlassfishTask {
             runtimeDepsAsUrl.add(f.toURI().toURL());
         }
 
-        ScatteredArchive.Builder archive = new ScatteredArchive.Builder(this.getProject().getName(), runtimeDepsAsUrl);
-        archive.addMetadata("WEB-INF/web.xml", this.getProject().getConvention().getPlugin(WarPluginConvention.class).getWebAppDir());
-        archive.resources(this.getProject().getConvention().getPlugin(WarPluginConvention.class).getWebAppDir());
+        ScatteredArchive.Builder archive = new ScatteredArchive.Builder(this.getProject().getName(), runtimeDepsAsUrl)
+                .addMetadata("WEB-INF/web.xml", new File(this.getWarConvention().getWebAppDir().getAbsolutePath()))
+                .addClassPath(this.getWarConvention().getWebAppDir());
 
         this.deployer.deploy(archive.buildWar(), params);
 
-        this.server.start();
+        try {
+            this.server.start();
+        } finally {
+            if (this.server != null)
+                this.server.stop();
+        }
     }
+
+    private WarPluginConvention getWarConvention() {
+        return this.getProject().getConvention().getPlugin(WarPluginConvention.class);
+    }
+
+
 }

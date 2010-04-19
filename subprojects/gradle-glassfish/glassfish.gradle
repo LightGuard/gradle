@@ -23,7 +23,7 @@ dependencies {
   compile project(':core')
   compile project(':plugins')
 
-  compile libraries.glassfish
+  compile libraries.glassfish_depends
 
   testCompile project(path: ':core', configuration: 'testFixtures')
   testRuntime project(path: ':core', configuration: 'testFixturesRuntime')
