@@ -69,6 +69,7 @@ libraries = [
 libraries.groovy_depends  = [libraries.groovy, libraries.commons_cli]
 libraries.jetty_depends = ["org.mortbay.jetty:jetty:6.1.22@jar", "org.mortbay.jetty:jetty-util:6.1.22@jar",
         "javax.servlet:servlet-api:2.5@jar"]
+libraries.glassfish_depends = ['org.glassfish.extras:glassfish-embedded-all:3.0-b74b@jar']
 
 allprojects {
     group = 'org.gradle'
@@ -376,7 +377,7 @@ def runtimeProjects() {
 }
 
 def pluginProjects() {
-    ['plugins', 'codeQuality', 'jetty', 'antlr', 'wrapper'].collect { project(it) }
+    ['plugins', 'codeQuality', 'jetty', 'glassfish', 'antlr', 'wrapper'].collect { project(it) }
 }
 
 class Version {
